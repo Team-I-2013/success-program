@@ -54,7 +54,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	  
 	   cv::findContours(copy_Result, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
        
-	
+	   if(!contours.empty()){
 
   	   int maxk = 0;
 	   double tmparea, maxarea = cv::contourArea(Mat(contours[0]));
@@ -70,31 +70,24 @@ int _tmain(int argc, _TCHAR* argv[])
 		
 	   
 	
-	
+	   }
 	   Moments m=moments(img_Result,true);
 	   cx=(int)(m.m10/m.m00);
 	   cy=(int)(m.m01/m.m00);
 	    
-
+	   
 	   cv::imshow("Processed", img_Result);
 
+	  
 
 	  char key = ' ';
 	  char in_key = cv::waitKey(10);
 	  if (in_key != -1) key = in_key;
 	  switch (key) {
 		case 'q': return 0;
-		case 's': if(cx==NULL||cy==NULL){
-			        cx=0;
-					cy=0;
-				  }
-			      printf("x:%d y:%d",cx,cy);	
+		case 's': printf("x:%d y:%d",cx,cy);	
 	  }		
 	}
 
 	return 0;
 }
-
-	
-
-	
