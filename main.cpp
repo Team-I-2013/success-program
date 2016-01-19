@@ -22,6 +22,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	cv::Mat dst2_img = cv::Mat::zeros(480, 640, CV_8UC3);
 
 	cv::Scalar paint(0,0,255);
+	int cx,cy;
 	
  
 
@@ -31,14 +32,15 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		Mat lab_img,img,img_Result,copy_Result, r_img, g_img,b_img;
 		cvtColor(src_img, lab_img, CV_BGR2Lab);
-
-		vector<Mat> planes;
+        vector<Mat> planes;
 		split(src_img, planes);
-		threshold(planes[2], r_img, 100, 255, THRESH_BINARY);
+		
+		
+        threshold(planes[2], r_img, 100, 255, THRESH_BINARY);
 		img=10*planes[2]/planes[1];
-		threshold(img, g_img,15, 255, THRESH_BINARY);
+		threshold(img, g_img,20, 255, THRESH_BINARY);
 		img=10*planes[2]/planes[0];
-		threshold(img, b_img, 15, 255., THRESH_BINARY);
+		threshold(img, b_img, 20, 255., THRESH_BINARY);
 //		cv::bitwise_and(r_img, g_img, img);
 //		cv::bitwise_and(img, b_img, img_Result);
 		img=g_img&b_img; 
@@ -47,40 +49,52 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		
 
-     vector<vector<cv::Point>> contours;
-  	vector<Vec4i> hierarchy;
-		cv::findContours(copy_Result, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+       vector<vector<cv::Point>> contours;
+  	   vector<Vec4i> hierarchy;
+	  
+	   cv::findContours(copy_Result, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+       
+	
 
-  	int maxk = 0;
-	double tmparea, maxarea = cv::contourArea(Mat(contours[0]));
-	for ( size_t k = 1; k < contours.size(); k++) {
+  	   int maxk = 0;
+	   double tmparea, maxarea = cv::contourArea(Mat(contours[0]));
+
+	   
+	   for ( size_t k = 1; k < contours.size(); k++) {
 		 if ((tmparea = cv::contourArea(Mat(contours[k]))) > maxarea) {
-		maxk = k; maxarea = tmparea;
+			maxk = k; maxarea = tmparea;
+	
+	        if(maxarea < 50 || maxarea > 500) continue; // （小さすぎる|大きすぎる）輪郭を除外
 		 }
-	}
+	   }
 		
-
-	cv::drawContours(dst_img, contours, maxk, paint, CV_FILLED, 8, hierarchy);
-	cv::drawContours(dst2_img, contours, maxk, cv::Scalar(0,0,0), CV_FILLED, 8, hierarchy);
+	   
 	
 	
-	Moments m=moments(img_Result,true);
-	int cx=(int)(m.m10/m.m00);
-	int cy=(int)(m.m01/m.m00);
+	   Moments m=moments(img_Result,true);
+	   cx=(int)(m.m10/m.m00);
+	   cy=(int)(m.m01/m.m00);
+	    
 
-	cv::imshow("Processed", img_Result);
-	printf("x:%d y:%d",cx,cy);	
+	   cv::imshow("Processed", img_Result);
 
 
-		char key = ' ';
-		char in_key = cv::waitKey(10);
-		if (in_key != -1) key = in_key;
-		switch (key) {
-			case 'q':
-			return 0;
-		}		
+	  char key = ' ';
+	  char in_key = cv::waitKey(10);
+	  if (in_key != -1) key = in_key;
+	  switch (key) {
+		case 'q': return 0;
+		case 's': if(cx==NULL||cy==NULL){
+			        cx=0;
+					cy=0;
+				  }
+			      printf("x:%d y:%d",cx,cy);	
+	  }		
 	}
 
 	return 0;
 }
+
+	
+
 	
